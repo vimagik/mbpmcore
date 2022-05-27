@@ -1,14 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions
-from rest_framework import status
+from rest_framework import permissions, status, viewsets
+
+from core.serializers import TaskSerializer
+from core.models import TaskModel
 
 
-class TaskView(APIView):
+class TaskView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TaskSerializer
 
-    def get(self, request):
-        return Response({'Task': [1, 2, 3, 4]})
+    def get_queryset(self):
+        queryset = TaskModel.objects.filter(responsible_id__exact=self.request.user.id)
+        return queryset
 
 
 class UserView(APIView):
