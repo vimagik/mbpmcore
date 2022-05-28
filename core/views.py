@@ -11,8 +11,9 @@ class TaskView(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        queryset = TaskModel.objects.filter(responsible_id__exact=self.request.user.id)
-        return queryset
+        queryset_for_responsible = TaskModel.objects.filter(responsible_id__exact=self.request.user.id)
+        queryset_for_group = TaskModel.objects.filter(responsible_group__in=self.request.user.groups.all())
+        return queryset_for_responsible.union(queryset_for_group)
 
 
 class UserView(APIView):
