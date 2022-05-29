@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, status, viewsets
+from rest_framework.parsers import JSONParser
 
 from core.serializers import TaskSerializer
 from core.models import TaskModel
@@ -9,10 +10,15 @@ from core.models import TaskModel
 class TaskView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TaskSerializer
+    parser_classes = [JSONParser]
 
     def get_queryset(self):
         queryset_for_responsible = TaskModel.objects.filter(responsible_id__exact=self.request.user.id)
         queryset_for_group = TaskModel.objects.filter(responsible_group__in=self.request.user.groups.all())
+        if self.request.query_params.get('search'):
+            search_string = self.request.query_params.get('search')
+            queryset_for_responsible = queryset_for_responsible.filter(name__istartswith=search_string)
+            queryset_for_group = queryset_for_group.filter(name__istartswith=search_string)
         return queryset_for_responsible.union(queryset_for_group)
 
 
