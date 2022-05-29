@@ -1,14 +1,23 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import permissions, status, viewsets
 
 from core.serializers import TaskSerializer
 from core.models import TaskModel
 
 
+class TasksSetPagination(PageNumberPagination):
+    """Pagination для index запроса"""
+    page_size = 7
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class TaskView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TaskSerializer
+    pagination_class = TasksSetPagination
 
     def get_queryset(self):
         queryset_for_responsible = TaskModel.objects.filter(responsible_id__exact=self.request.user.id)
