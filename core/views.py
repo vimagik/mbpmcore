@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import permissions, status, viewsets
 
-from core.serializers import TaskSerializer
-from core.models import TaskModel
+from core.serializers import TaskSerializer, ProcesSerializer
+from core.models import TaskModel, ProcessModel
 
 
 class TasksSetPagination(PageNumberPagination):
@@ -12,6 +12,12 @@ class TasksSetPagination(PageNumberPagination):
     page_size = 7
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+
+class ProcessView(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProcesSerializer
+    queryset = ProcessModel.objects.all()
 
 
 class TaskView(viewsets.ModelViewSet):

@@ -6,7 +6,7 @@ from core.models import TaskModel, ProcessModel
 class ProcesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ProcessModel
-        fields = ['name_ru', 'name_en']
+        fields = ['name_ru', 'name_en', 'code', 'id']
 
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):

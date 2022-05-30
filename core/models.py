@@ -12,6 +12,7 @@ class ProcessModel(models.Model):
     name_ru = models.CharField(max_length=50, unique=True)
     name_en = models.CharField(max_length=50, unique=True)
     camunda_id = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.name_ru
