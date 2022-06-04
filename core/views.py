@@ -5,6 +5,7 @@ from rest_framework import permissions, status, viewsets
 
 from core.serializers import TaskSerializer, ProcesSerializer
 from core.models import TaskModel, ProcessModel
+from core.camunda import get_all_user_task
 
 
 class TasksSetPagination(PageNumberPagination):
@@ -49,8 +50,20 @@ class UserView(APIView):
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    def post(self):
         try:
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class CamundaTaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        result, data = get_all_user_task(self.request.user)
+        if result:
+            return Response(status=status.HTTP_200_OK, data=data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=data)
+
