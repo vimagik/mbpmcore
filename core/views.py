@@ -7,6 +7,12 @@ from core.serializers import TaskSerializer, ProcesSerializer
 from core.models import TaskModel, ProcessModel
 from core.camunda import get_all_user_task
 
+DEFAULT_PROCESS_VALUE = {
+    'name_ru': 'Процесс не зарегистрирован в системе',
+    'name_en': 'Process not registered in the system',
+    'code': 'error',
+    }
+
 
 class TasksSetPagination(PageNumberPagination):
     """Pagination for tasks"""
@@ -63,7 +69,28 @@ class CamundaTaskView(APIView):
     def get(self, request):
         result, data = get_all_user_task(self.request.user)
         if result:
-            return Response(status=status.HTTP_200_OK, data=data)
+            page = int(self.request.query_params.get('page', default=1))-1
+            search_string = self.request.query_params.get('search')
+            if search_string:
+                data = [item for item in data if item['name'].lower().startswith(search_string.lower())]
+            paginated_tasks = data[page*7:(page+1)*7]
+            for task in paginated_tasks:
+                process_definition = task['processDefinitionId'].split(':')[0]
+                process = ProcessModel.objects.filter(camunda_id__exact=process_definition)
+                if process.count() > 0:
+                    process_value = {
+                        'name_ru': process[0].name_ru,
+                        'name_en': process[0].name_en,
+                        'code' : process[0].code
+                    }
+                else:
+                    process_value = DEFAULT_PROCESS_VALUE
+                task['process'] = process_value
+            response_data = {
+                'count': len(data),
+                'results': paginated_tasks
+            }
+            return Response(status=status.HTTP_200_OK, data=response_data)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=data)
 
