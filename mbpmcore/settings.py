@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'core',
+    'conman',
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
