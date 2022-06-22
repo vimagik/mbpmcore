@@ -21,7 +21,7 @@ class CmProcessContext(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    perform_before = models.DateTimeField(blank=True)
+    perform_before = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.short_name
