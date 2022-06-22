@@ -37,11 +37,11 @@ def get_all_user_task(user: User) -> tuple:
     return send_post_camunda_request(url, data)
 
 
-def start_process(process_id: str, variables: dict) -> tuple:
+def start_process(process_id: str, variables: dict, business_key: str) -> tuple:
     """Start a new process in camunda"""
     url = f'{BASE_URL}process-definition/key/{process_id}/start'
     data = {
-        'businessKey': f'{datetime.now()} cm',
+        'businessKey': business_key,
         'variables': variables,
     }
     return send_post_camunda_request(url, data)
