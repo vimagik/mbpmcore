@@ -17,5 +17,6 @@ class TaskAdmin(admin.ModelAdmin):
 
 @admin.register(ProcessInstanceModel)
 class ProcessInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id', '__str__')
+    list_display = ('id', '__str__', 'create_date')
     list_display_links = ('id', '__str__')
+    readonly_fields = ('create_date',)

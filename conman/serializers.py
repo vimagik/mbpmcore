@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 
 from conman.models import CmProcessContext
 
@@ -9,3 +10,14 @@ class StartFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = CmProcessContext
         fields = ['short_name', 'what_to_do', 'perform_before', 'responsible']
+
+    def create(self, validated_data):
+        responsible_user = User.objects.get(username__exact=validated_data.get('responsible'))
+        process_context = CmProcessContext.objects.create(
+            short_name=validated_data.get('short_name'),
+            what_to_do=validated_data.get('what_to_do'),
+            perform_before=validated_data.get('perform_before'),
+            responsible=responsible_user
+        )
+        return process_context
+

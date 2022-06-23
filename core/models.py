@@ -54,14 +54,13 @@ class ProcessInstanceModel(models.Model):
         verbose_name = 'Экземпляр процесса'
         verbose_name_plural = 'Экземпляры процессов'
 
-    create_date = models.DateField(auto_now_add=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     process = models.ForeignKey(
         ProcessModel,
         on_delete=models.SET_NULL,
         null=True
     )
-    camunda_process_instance_id = models.CharField(max_length=50)
-    data_id = models.IntegerField()
+    camunda_instance_id = models.CharField(max_length=50)
 
     def __str__(self):
         return f'{self.process.name_ru} от {self.create_date}'
