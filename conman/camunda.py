@@ -5,7 +5,7 @@ from core.camunda import start_process
 PROCESS_ID = 'Process_0rlunnd'
 
 
-def start_cm(responsible: str, perform_before: datetime = '') -> tuple:
+def start_cm(responsible: str, perform_before: str = '') -> tuple:
     variables = {
         "task_restriction": {"value": perform_before, "type": "Date"},
         "performer": {"value": responsible, "type": "String"},
