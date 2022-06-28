@@ -21,3 +21,21 @@ class StartFormSerializer(serializers.ModelSerializer):
         )
         return process_context
 
+
+class ContextSerializer(serializers.ModelSerializer):
+
+    initiator = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='username'
+    )
+    responsible = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        model = CmProcessContext
+        fields = ['short_name', 'what_to_do', 'responsible', 'initiator', 'perform_before']
+

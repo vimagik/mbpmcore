@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework import permissions, status
+from rest_framework import permissions, status, viewsets
 
-from conman.serializers import StartFormSerializer
+from conman.serializers import StartFormSerializer, ContextSerializer
 from conman.camunda import start_cm
+from conman.models import CmProcessContext
 from core.models import ProcessInstanceModel, ProcessModel
 
 PROCESS_CODE = 'cm'
@@ -46,3 +47,17 @@ class StartCM(APIView):
             process=process,
         )
         return Response(status=status.HTTP_201_CREATED)
+
+
+class GetContextView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request) -> Response:
+        context_id = request.query_params.get('context')
+        if not context_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        context_process = CmProcessContext.objects.get(camunda_instance_id__exact=request.query_params.get('context'))
+        serializer = ContextSerializer(context_process, many=False)
+        return Response(serializer.data)
+
+

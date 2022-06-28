@@ -24,7 +24,7 @@ class CmProcessContext(models.Model):
         null=True
     )
     perform_before = models.DateTimeField(blank=True, null=True)
-    camunda_instance_id = models.CharField(max_length=50)
+    camunda_instance_id = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.short_name
