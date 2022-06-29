@@ -46,3 +46,12 @@ def start_process(process_id: str, variables: dict, business_key: str) -> tuple:
     }
     return send_post_camunda_request(url, data)
 
+
+def complete_task(task_id: str, variables: dict) -> tuple:
+    """Start a new process in camunda"""
+    url = f'{BASE_URL}task/{task_id}/complete'
+    data = {
+        'variables': variables,
+    }
+    return send_post_camunda_request(url, data)
+
