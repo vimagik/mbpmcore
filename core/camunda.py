@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from datetime import datetime
 import requests
 import time
 
@@ -12,8 +11,11 @@ def send_post_camunda_request(url: str, data: dict) -> tuple:
     attempt_num = 0
     while attempt_num < MAX_RETRIES:
         r = requests.post(url, json=data)
-        if r.status_code == 200:
-            return True, r.json()
+        if r.status_code in [200, 204]:
+            if r.text:
+                return True, r.json()
+            else:
+                return True, ''
         else:
             attempt_num += 1
             time.sleep(2)

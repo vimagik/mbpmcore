@@ -39,3 +39,10 @@ class ContextSerializer(serializers.ModelSerializer):
         model = CmProcessContext
         fields = ['short_name', 'what_to_do', 'responsible', 'initiator', 'perform_before']
 
+
+class FinishPlanTaskSerializer(serializers.Serializer):
+
+    task_id = serializers.CharField(max_length=50)
+    instance_id = serializers.CharField(max_length=50)
+    perform_before = serializers.DateTimeField()
+
