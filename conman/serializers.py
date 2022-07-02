@@ -46,3 +46,10 @@ class FinishPlanTaskSerializer(serializers.Serializer):
     instance_id = serializers.CharField(max_length=50)
     perform_before = serializers.DateTimeField()
 
+
+class FinishCompleteTaskSerializer(serializers.Serializer):
+
+    task_id = serializers.CharField(max_length=50)
+    instance_id = serializers.CharField(max_length=50)
+    perform_before = serializers.DateTimeField(required=False)
+    status = serializers.CharField(max_length=12)

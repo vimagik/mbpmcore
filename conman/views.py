@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework import permissions, status, viewsets
 
-from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer
+from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, FinishCompleteTaskSerializer
 from conman.camunda import start_cm
 from conman.models import CmProcessContext
 from core.models import ProcessInstanceModel, ProcessModel
@@ -83,6 +83,34 @@ class FinishPlanTaskView(APIView):
         process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
         process_instance.perform_before = perform_before
         process_instance.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class FinishCompleteTaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    def get(self, request) -> Response:
+        serializer = FinishCompleteTaskSerializer(data=request.query_params)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+        task_id = serializer.validated_data['task_id']
+        instance_id = serializer.validated_data['instance_id']
+        status_task = serializer.validated_data['status']
+        variables = {
+            "status": {"value": status_task, "type": "String"},
+        }
+        if status_task == 'postponement':
+            perform_before = serializer.validated_data['perform_before']
+            perform_before_str = perform_before.isoformat()[:19] + '.000UTC'
+            variables['task_restriction'] = {"value": perform_before_str, "type": "Date"}
+        status_code, camunda_response = complete_task(task_id, variables)
+        if not status_code:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
+        if status_task == 'postponement':
+            process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
+            process_instance.perform_before = perform_before
+            process_instance.save()
         return Response(status=status.HTTP_200_OK)
 
 
