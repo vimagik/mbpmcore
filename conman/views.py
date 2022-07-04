@@ -32,7 +32,8 @@ class StartCM(APIView):
 
         status_code, camunda_response = start_cm(
             serializer.validated_data['responsible'],
-            perform_before
+            serializer.validated_data['short_name'],
+            perform_before,
         )
         if not status_code:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
