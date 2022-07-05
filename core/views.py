@@ -74,7 +74,7 @@ class CamundaTaskView(APIView):
             search_string = self.request.query_params.get('search')
             if search_string:
                 data = [item for item in data if item['name'].lower().startswith(search_string.lower())]
-            paginated_tasks = data[page*7:(page+1)*7]
+            paginated_tasks = data[page*10:(page+1)*10]
             for task in paginated_tasks:
                 process_definition = task['processDefinitionId'].split(':')[0]
                 process = ProcessModel.objects.filter(camunda_id__exact=process_definition)
