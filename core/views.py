@@ -82,7 +82,7 @@ class CamundaTaskView(APIView):
                     process_value = {
                         'name_ru': process[0].name_ru,
                         'name_en': process[0].name_en,
-                        'code' : process[0].code
+                        'code': process[0].code
                     }
                 else:
                     process_value = DEFAULT_PROCESS_VALUE
