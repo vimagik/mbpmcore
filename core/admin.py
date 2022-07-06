@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from core.models import ProcessModel, TaskModel, ProcessInstanceModel
+from core.models import ProcessModel, TaskModel, ProcessInstanceModel, Profile
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('__str__',)
+    list_display_links = ('__str__',)
 
 
 @admin.register(ProcessModel)
