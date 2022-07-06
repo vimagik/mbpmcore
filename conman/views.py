@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status
 
-from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, FinishCompleteTaskSerializer
+from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, \
+    FinishCompleteTaskSerializer
 from conman.camunda import start_cm
 from conman.models import CmProcessContext
 from core.models import ProcessInstanceModel, ProcessModel
@@ -22,6 +23,7 @@ class StartCM(APIView):
 
     def post(self, request) -> Response:
         """Create new instance"""
+        process_status = 'Планирование'
         serializer = StartFormSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
@@ -29,6 +31,7 @@ class StartCM(APIView):
         perform_before = serializer.validated_data['perform_before']
         if perform_before:
             perform_before = perform_before.isoformat()[:19] + '.000UTC'
+            process_status = 'Выполнение'
 
         status_code, camunda_response = start_cm(
             serializer.validated_data['responsible'],
@@ -41,6 +44,7 @@ class StartCM(APIView):
         context = serializer.save()
         context.initiator = request.user
         context.camunda_instance_id = camunda_response.get('id')
+        context.status = process_status
         context.save()
 
         process = ProcessModel.objects.get(code__exact=PROCESS_CODE)
@@ -83,6 +87,7 @@ class FinishPlanTaskView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
         process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
         process_instance.perform_before = perform_before
+        process_instance.status = 'Выполнение'
         process_instance.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -92,6 +97,7 @@ class FinishCompleteTaskView(APIView):
     parser_classes = [JSONParser]
 
     def get(self, request) -> Response:
+        process_status = 'Завершен'
         serializer = FinishCompleteTaskSerializer(data=request.query_params)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
@@ -105,14 +111,13 @@ class FinishCompleteTaskView(APIView):
             perform_before = serializer.validated_data['perform_before']
             perform_before_str = perform_before.isoformat()[:19] + '.000UTC'
             variables['task_restriction'] = {"value": perform_before_str, "type": "Date"}
+            process_status = 'Перенос срока'
         status_code, camunda_response = complete_task(task_id, variables)
         if not status_code:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
+        process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
         if status_task == 'postponement':
-            process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
             process_instance.perform_before = perform_before
-            process_instance.save()
+        process_instance.status = process_status
+        process_instance.save()
         return Response(status=status.HTTP_200_OK)
-
-
-

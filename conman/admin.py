@@ -5,5 +5,5 @@ from conman.models import CmProcessContext
 
 @admin.register(CmProcessContext)
 class CmProcessContextAdmin(admin.ModelAdmin):
-    list_display = ('id', '__str__', 'responsible', 'initiator', 'perform_before')
+    list_display = ('id', '__str__', 'responsible', 'initiator', 'perform_before', 'status')
     readonly_fields = ('create_date', 'change_date')
