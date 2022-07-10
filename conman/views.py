@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework import permissions, status
+from rest_framework import permissions, status, viewsets
+from rest_framework.pagination import PageNumberPagination
 
 from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, \
-    FinishCompleteTaskSerializer
+    FinishCompleteTaskSerializer, CmProcessInstanceSerializer
 from conman.camunda import start_cm
 from conman.models import CmProcessContext
 from core.models import ProcessInstanceModel, ProcessModel
@@ -121,3 +122,21 @@ class FinishCompleteTaskView(APIView):
         process_instance.status = process_status
         process_instance.save()
         return Response(status=status.HTTP_200_OK)
+
+
+class CmSetPagination(PageNumberPagination):
+    """Pagination for CM process instance"""
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class CmProcessInstanceView(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CmProcessInstanceSerializer
+    pagination_class = CmSetPagination
+
+    def get_queryset(self):
+        queryset_for_initiator = CmProcessContext.objects.filter(initiator_id__exact=self.request.user.id)
+        queryset_for_responsible = CmProcessContext.objects.filter(responsible_id__exact=self.request.user.id)
+        return queryset_for_initiator.union(queryset_for_responsible)

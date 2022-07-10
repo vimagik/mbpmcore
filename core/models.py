@@ -79,6 +79,7 @@ class TaskModel(models.Model):
 
 
 class ProcessInstanceModel(models.Model):
+    """Process instance"""
 
     class Meta:
         verbose_name = 'Экземпляр процесса'
