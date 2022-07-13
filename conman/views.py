@@ -132,6 +132,7 @@ class CmSetPagination(PageNumberPagination):
 
 
 class CmProcessInstanceView(viewsets.ModelViewSet):
+    """CM process instance for index page"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CmProcessInstanceSerializer
     pagination_class = CmSetPagination
@@ -139,4 +140,10 @@ class CmProcessInstanceView(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset_for_initiator = CmProcessContext.objects.filter(initiator_id__exact=self.request.user.id)
         queryset_for_responsible = CmProcessContext.objects.filter(responsible_id__exact=self.request.user.id)
-        return queryset_for_initiator.union(queryset_for_responsible)
+        result_query = queryset_for_initiator.union(queryset_for_responsible)
+        if self.request.query_params.get('sort_by[]'):
+            sort_by = self.request.query_params.get('sort_by[]')
+            if self.request.query_params.get('sort_desc[]'):
+                sort_by = '-' + sort_by
+            result_query = result_query.order_by(sort_by)
+        return result_query
