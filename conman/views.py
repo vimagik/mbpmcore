@@ -138,12 +138,26 @@ class CmProcessInstanceView(viewsets.ModelViewSet):
     pagination_class = CmSetPagination
 
     def get_queryset(self):
-        queryset_for_initiator = CmProcessContext.objects.filter(initiator_id__exact=self.request.user.id)
-        queryset_for_responsible = CmProcessContext.objects.filter(responsible_id__exact=self.request.user.id)
-        result_query = queryset_for_initiator.union(queryset_for_responsible)
+        performer_filter = self.request.query_params.get('performer')
+        if performer_filter:
+            queryset_for_responsible = CmProcessContext.objects.filter(responsible__username__exact=performer_filter)
+            result_query = queryset_for_responsible.filter(initiator_id__exact=self.request.user.id)
+        else:
+            queryset_for_responsible = CmProcessContext.objects.filter(responsible_id__exact=self.request.user.id)
+            queryset_for_initiator = CmProcessContext.objects.filter(initiator_id__exact=self.request.user.id)
+        only_active = self.request.query_params.get('only_active', default='false')
+        if only_active == 'true':
+            if performer_filter:
+                result_query = result_query.filter(status__exact='Завершен')
+            else:
+                queryset_for_initiator = queryset_for_initiator.filter(status__exact='Завершен')
+                queryset_for_responsible = queryset_for_responsible.filter(status__exact='Завершен')
+        if not performer_filter:
+            result_query = queryset_for_initiator.union(queryset_for_responsible)
         if self.request.query_params.get('sort_by[]'):
             sort_by = self.request.query_params.get('sort_by[]')
-            if self.request.query_params.get('sort_desc[]'):
+            sort_desk = self.request.query_params.get('sort_desc[]', default='false')
+            if sort_desk == 'true':
                 sort_by = '-' + sort_by
             result_query = result_query.order_by(sort_by)
         return result_query
