@@ -15,7 +15,7 @@ default_config = {
 API_TOKEN = '1033382685:AAEmbpKw8wg-Sbrx_xPsovKEQE2M2xEvRaY'
 
 
-def send_to_telegram(task_name: str, message_type: str, due_date: datetime) -> None:
+def send_to_telegram(task_name: str, message_type: str, due_date: datetime, telegram_id: str) -> None:
     if message_type == 'planDate':
         text_message = f'По задаче "{task_name}" установлен срок до {due_date.strftime("%d.%m.%Y")} включительно'
     elif message_type == 'postponeDate':
@@ -23,9 +23,8 @@ def send_to_telegram(task_name: str, message_type: str, due_date: datetime) -> N
     else:
         text_message = f'Задача "{task_name}" выполнена'
     bot_url = f'https://api.telegram.org/bot{API_TOKEN}/sendMessage'
-    user_id = 129951811
     json_data = {
-        'chat_id': user_id,
+        'chat_id': telegram_id,
         'text': text_message,
     }
     requests.post(bot_url, data=json_data)
@@ -36,10 +35,12 @@ def send_info(task: ExternalTask) -> TaskResult:
     message_type = task.get_extension_property('type')
     due_date_str = task.get_variable('task_restriction')
     due_date = datetime.strptime(due_date_str[:19], "%Y-%m-%dT%H:%M:%S")
+    telegram_id = task.get_variable('performer_telegram')
     send_to_telegram(
         task_name=task_name,
         message_type=message_type,
         due_date=due_date,
+        telegram_id=telegram_id
     )
     return task.complete()
 
