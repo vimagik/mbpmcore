@@ -35,7 +35,7 @@ def send_info(task: ExternalTask) -> TaskResult:
     message_type = task.get_extension_property('type')
     due_date_str = task.get_variable('task_restriction')
     due_date = datetime.strptime(due_date_str[:19], "%Y-%m-%dT%H:%M:%S")
-    telegram_id = task.get_variable('performer_telegram')
+    telegram_id = task.get_variable('initiator_telegram')
     send_to_telegram(
         task_name=task_name,
         message_type=message_type,
