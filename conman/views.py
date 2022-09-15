@@ -149,10 +149,10 @@ class CmProcessInstanceView(viewsets.ModelViewSet):
         only_active = self.request.query_params.get('only_active', default='false')
         if only_active == 'true':
             if performer_filter:
-                result_query = result_query.filter(status__exact='Завершен')
+                result_query = result_query.filter(status__exact='Выполнение')
             else:
-                queryset_for_initiator = queryset_for_initiator.filter(status__exact='Завершен')
-                queryset_for_responsible = queryset_for_responsible.filter(status__exact='Завершен')
+                queryset_for_initiator = queryset_for_initiator.filter(status__exact='Выполнение')
+                queryset_for_responsible = queryset_for_responsible.filter(status__exact='Выполнение')
         if not performer_filter:
             result_query = queryset_for_initiator.union(queryset_for_responsible)
         if self.request.query_params.get('sort_by[]'):
