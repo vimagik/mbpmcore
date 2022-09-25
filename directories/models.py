@@ -14,6 +14,9 @@ class Meeting(models.Model):
     description = models.TextField()
     participants = models.ManyToManyField(User)
 
+    def __str__(self):
+        return self.name
+
 
 class Arrangement(models.Model):
 
