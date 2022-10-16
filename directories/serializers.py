@@ -31,7 +31,7 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
             data=validated_data['participants'],
             meeting=new_meeting
             )
-        arrangements_data = [val for val in validated_data['tasks'] if val['isTask']==False]
+        arrangements_data = [val for val in validated_data['tasks'] if val['isTask'] is False]
         self.add_arrangements(arrangements_data, new_meeting)
         return new_meeting
 
