@@ -1,4 +1,9 @@
 {
     "python.linting.enabled": true,
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportUnboundVariable": "information",
+        "reportGeneralTypeIssues": "information",
+        "reportOptionalSubscript": "information"
+    }
 }

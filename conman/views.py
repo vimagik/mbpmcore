@@ -6,7 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, \
     FinishCompleteTaskSerializer, CmProcessInstanceSerializer
-from conman.camunda import start_cm
+from conman.camunda import start_cm, create_instance
 from conman.models import CmProcessContext
 from core.models import ProcessInstanceModel, ProcessModel
 from core.camunda import complete_task
@@ -24,36 +24,21 @@ class StartCM(APIView):
 
     def post(self, request) -> Response:
         """Create new instance"""
-        process_status = 'Планирование'
         serializer = StartFormSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
 
-        perform_before = serializer.validated_data['perform_before']
-        if perform_before:
-            perform_before = perform_before.isoformat()[:19] + '.000UTC'
-            process_status = 'Выполнение'
-
-        status_code, camunda_response = start_cm(
-            serializer.validated_data['responsible'],
-            serializer.validated_data['short_name'],
-            request.user.profile.telegram_id,
-            perform_before,
+        status_code, status_text = create_instance(
+            short_name=serializer.validated_data['short_name'],
+            what_to_do=serializer.validated_data['what_to_do'],
+            perform_before=serializer.validated_data['perform_before'],
+            responsible=serializer.validated_data['responsible'],
+            initiator=request.user
         )
+        
         if not status_code:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=status_text)
 
-        context = serializer.save()
-        context.initiator = request.user
-        context.camunda_instance_id = camunda_response.get('id')
-        context.status = process_status
-        context.save()
-
-        process = ProcessModel.objects.get(code__exact=PROCESS_CODE)
-        ProcessInstanceModel.objects.create(
-            camunda_instance_id=camunda_response.get('id'),
-            process=process,
-        )
         return Response(status=status.HTTP_201_CREATED)
 
 
