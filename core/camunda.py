@@ -28,14 +28,23 @@ def get_all_user_task(user: User) -> tuple:
     groups = []
     for value in user.groups.all():
         groups.append(value.name)
-    data = {
+    if len(groups) == 0:
+        data = {
         'orQueries': [
             {
-                'candidateGroups': groups,
                 'assignee': user.username,
             }
         ]
     }
+    else:
+        data = {
+            'orQueries': [
+                {
+                    'candidateGroups': groups,
+                    'assignee': user.username,
+                }
+            ]
+        }
     return send_post_camunda_request(url, data)
 
 
