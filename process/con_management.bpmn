@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_15cztf4" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="Collaboration_0tqyhkf">
+    <bpmn:participant id="Participant_0tfuaqr" name="Непрерывный менеджмент" processRef="Process_0rlunnd" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_0rlunnd" name="Непрерывный менеджмент" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_02d2qd1" sourceRef="Event_1r93ks8" targetRef="Gateway_0u6wsxo" />
+    <bpmn:startEvent id="Event_1r93ks8">
+      <bpmn:outgoing>Flow_02d2qd1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_0u6wsxo" name="Есть ограничение по сроку" default="Flow_1onjipw">
+      <bpmn:incoming>Flow_02d2qd1</bpmn:incoming>
+      <bpmn:outgoing>Flow_06nl4od</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1onjipw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_06nl4od" name="нет" sourceRef="Gateway_0u6wsxo" targetRef="plan-task">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="javascript">task_restriction === null</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0j3ag3x" sourceRef="plan-task" targetRef="Activity_07dxrq7" />
+    <bpmn:sequenceFlow id="Flow_1onjipw" name="да" sourceRef="Gateway_0u6wsxo" targetRef="Gateway_07cyjc7" />
+    <bpmn:exclusiveGateway id="Gateway_07cyjc7">
+      <bpmn:incoming>Flow_1onjipw</bpmn:incoming>
+      <bpmn:incoming>Flow_19ux11h</bpmn:incoming>
+      <bpmn:outgoing>Flow_0sam6nz</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_19ux11h" sourceRef="Activity_07dxrq7" targetRef="Gateway_07cyjc7" />
+    <bpmn:sequenceFlow id="Flow_0sam6nz" sourceRef="Gateway_07cyjc7" targetRef="complete-task" />
+    <bpmn:exclusiveGateway id="Gateway_1m8dgph" name="Статус выполнения" default="Flow_1bcy1t1">
+      <bpmn:incoming>Flow_1322ist</bpmn:incoming>
+      <bpmn:outgoing>Flow_071tzml</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1bcy1t1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1322ist" sourceRef="complete-task" targetRef="Gateway_1m8dgph" />
+    <bpmn:sequenceFlow id="Flow_071tzml" name="Перенос срока" sourceRef="Gateway_1m8dgph" targetRef="Activity_0emhcec">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status=='postponement'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_05s51sl" sourceRef="Activity_0emhcec" targetRef="complete-task" />
+    <bpmn:serviceTask id="Activity_07dxrq7" name="Оповестить Инициатора о новой дате и времени" camunda:type="external" camunda:topic="cm_send_to_telegram">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="type" value="planDate" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0j3ag3x</bpmn:incoming>
+      <bpmn:outgoing>Flow_19ux11h</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0emhcec" name="Оповестить Инициатора о новом сроке по задаче" camunda:type="external" camunda:topic="cm_send_to_telegram">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="type" value="postponeDate" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_071tzml</bpmn:incoming>
+      <bpmn:outgoing>Flow_05s51sl</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1bcy1t1" sourceRef="Gateway_1m8dgph" targetRef="Activity_0pr8cuo" />
+    <bpmn:sequenceFlow id="Flow_19kkrwn" sourceRef="Activity_0pr8cuo" targetRef="Event_1wg5yrs" />
+    <bpmn:endEvent id="Event_1wg5yrs">
+      <bpmn:incoming>Flow_19kkrwn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_0pr8cuo" name="Оповестить Иницитора о факте выполнения задачи" camunda:type="external" camunda:topic="cm_send_to_telegram">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="type" value="endTask" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1bcy1t1</bpmn:incoming>
+      <bpmn:outgoing>Flow_19kkrwn</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="plan-task" name="Поставить задачу в план" camunda:assignee="${performer}" camunda:dueDate="${dateTime().plusDays(1).toDate()}">
+      <bpmn:incoming>Flow_06nl4od</bpmn:incoming>
+      <bpmn:outgoing>Flow_0j3ag3x</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="complete-task" name="${task_name}" camunda:assignee="${performer}" camunda:dueDate="${task_restriction}">
+      <bpmn:incoming>Flow_0sam6nz</bpmn:incoming>
+      <bpmn:incoming>Flow_05s51sl</bpmn:incoming>
+      <bpmn:outgoing>Flow_1322ist</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0tqyhkf">
+      <bpmndi:BPMNShape id="Participant_0tfuaqr_di" bpmnElement="Participant_0tfuaqr" isHorizontal="true">
+        <dc:Bounds x="130" y="100" width="1310" height="450" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_19kkrwn_di" bpmnElement="Flow_19kkrwn">
+        <di:waypoint x="1230" y="330" />
+        <di:waypoint x="1302" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bcy1t1_di" bpmnElement="Flow_1bcy1t1">
+        <di:waypoint x="1005" y="330" />
+        <di:waypoint x="1130" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05s51sl_di" bpmnElement="Flow_05s51sl">
+        <di:waypoint x="930" y="460" />
+        <di:waypoint x="840" y="460" />
+        <di:waypoint x="840" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_071tzml_di" bpmnElement="Flow_071tzml">
+        <di:waypoint x="980" y="355" />
+        <di:waypoint x="980" y="420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1001" y="385" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1322ist_di" bpmnElement="Flow_1322ist">
+        <di:waypoint x="890" y="330" />
+        <di:waypoint x="955" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0sam6nz_di" bpmnElement="Flow_0sam6nz">
+        <di:waypoint x="725" y="330" />
+        <di:waypoint x="790" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19ux11h_di" bpmnElement="Flow_19ux11h">
+        <di:waypoint x="640" y="460" />
+        <di:waypoint x="700" y="460" />
+        <di:waypoint x="700" y="355" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1onjipw_di" bpmnElement="Flow_1onjipw">
+        <di:waypoint x="355" y="330" />
+        <di:waypoint x="675" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="509" y="312" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j3ag3x_di" bpmnElement="Flow_0j3ag3x">
+        <di:waypoint x="490" y="460" />
+        <di:waypoint x="540" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06nl4od_di" bpmnElement="Flow_06nl4od">
+        <di:waypoint x="330" y="355" />
+        <di:waypoint x="330" y="460" />
+        <di:waypoint x="390" y="460" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="337" y="408" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02d2qd1_di" bpmnElement="Flow_02d2qd1">
+        <di:waypoint x="248" y="330" />
+        <di:waypoint x="305" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1r93ks8_di" bpmnElement="Event_1r93ks8">
+        <dc:Bounds x="212" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0u6wsxo_di" bpmnElement="Gateway_0u6wsxo" isMarkerVisible="true">
+        <dc:Bounds x="305" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="290" y="255" width="80" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_07cyjc7_di" bpmnElement="Gateway_07cyjc7" isMarkerVisible="true">
+        <dc:Bounds x="675" y="305" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1m8dgph_di" bpmnElement="Gateway_1m8dgph" isMarkerVisible="true">
+        <dc:Bounds x="955" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="948" y="268" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1s48064_di" bpmnElement="Activity_07dxrq7">
+        <dc:Bounds x="540" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1qa38hk_di" bpmnElement="Activity_0emhcec">
+        <dc:Bounds x="930" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1wg5yrs_di" bpmnElement="Event_1wg5yrs">
+        <dc:Bounds x="1302" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09oftw3_di" bpmnElement="Activity_0pr8cuo">
+        <dc:Bounds x="1130" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_022rsq9_di" bpmnElement="plan-task">
+        <dc:Bounds x="390" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y8eq2n_di" bpmnElement="complete-task">
+        <dc:Bounds x="790" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
