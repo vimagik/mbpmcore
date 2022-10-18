@@ -1,9 +1,12 @@
 from datetime import datetime
+from typing import Optional
 from django.contrib.auth.models import User
 
 from core.camunda import start_process
 from core.models import ProcessModel, ProcessInstanceModel
 from conman.models import CmProcessContext
+
+from directories.models import Meeting
 
 PROCESS_ID = 'Process_0rlunnd'
 PROCESS_CODE = 'cm'
@@ -22,7 +25,7 @@ def start_cm(responsible: str, task_name: str, telegram_id: str, perform_before:
     return status, response
 
 
-def create_instance(short_name: str, what_to_do: str, perform_before: datetime, responsible: str, initiator: User) -> tuple:
+def create_instance(short_name: str, what_to_do: str, perform_before: datetime, responsible: str, initiator: User, meeting: Optional[Meeting] = None) -> tuple:
     process_status = 'Планирование'
     if perform_before:
         perform_before_iso = perform_before.isoformat()[:19] + '.000UTC'
@@ -50,6 +53,8 @@ def create_instance(short_name: str, what_to_do: str, perform_before: datetime, 
     process_context.initiator = initiator
     process_context.camunda_instance_id = camunda_response.get('id')
     process_context.status = process_status
+    if not meeting:
+        process_context.meeting = meeting
     process_context.save()
 
     process = ProcessModel.objects.get(code__exact=PROCESS_CODE)

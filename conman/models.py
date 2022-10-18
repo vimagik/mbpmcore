@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from directories.models import Meeting
+
 
 class CmProcessContext(models.Model):
 
@@ -27,6 +29,13 @@ class CmProcessContext(models.Model):
     perform_before = models.DateTimeField(blank=True, null=True)
     camunda_instance_id = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=15)
+
+    meeting = models.ForeignKey(
+        Meeting,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.short_name

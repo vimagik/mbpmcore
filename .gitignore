@@ -1,8 +1,8 @@
 .venv
 conman/__pycache__
-conman/migrations/__pycache__
+conman/migrations
 core/__pycache__
-core/migrations/__pycache__
+core/migrations
 directories/__pycache__
-directories/migrations/__pycache__
+directories/migrations
 mbpmcore/__pycache__

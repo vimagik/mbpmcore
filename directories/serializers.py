@@ -1,7 +1,9 @@
+import stat
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
 from directories.models import Meeting, Arrangement
+from conman.camunda import create_instance
 
 
 class TaskSerializer(serializers.Serializer):
@@ -9,7 +11,7 @@ class TaskSerializer(serializers.Serializer):
     desc = serializers.CharField()
     isTask = serializers.BooleanField()
     responsible = serializers.CharField(allow_blank=True)
-    due = serializers.DateField(allow_null=True)
+    due = serializers.DateTimeField(allow_null=True)
 
 
 class StartFormMeetingSerializer(serializers.ModelSerializer):
@@ -32,7 +34,12 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
             meeting=new_meeting
             )
         arrangements_data = [val for val in validated_data['tasks'] if val['isTask'] is False]
-        self.add_arrangements(arrangements_data, new_meeting)
+        if len(arrangements_data) > 0:
+            self.add_arrangements(arrangements_data, new_meeting)
+        task_data = [val for val in validated_data['tasks'] if val['isTask'] is True]
+        if len(task_data) > 0:
+            user =  self.context['request'].user
+            self.add_tasks(task_data, new_meeting, user)
         return new_meeting
 
     @staticmethod
@@ -47,4 +54,16 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
             Arrangement.objects.create(
                 description=val['desc'],
                 meeting=meeting,
+            )
+
+    @staticmethod
+    def add_tasks(data: list, meeting: Meeting, initiator: User) -> None:
+        for val in data:
+            short_name = val['desc'] if len(val['desc']) <= 20 else val['desc'][:20] + '...'
+            create_instance(
+                short_name=short_name,
+                what_to_do=val['desc'],
+                perform_before=val['due'],
+                responsible=val['responsible'],
+                initiator=initiator
             )
