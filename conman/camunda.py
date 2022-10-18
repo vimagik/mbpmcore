@@ -53,7 +53,7 @@ def create_instance(short_name: str, what_to_do: str, perform_before: datetime, 
     process_context.initiator = initiator
     process_context.camunda_instance_id = camunda_response.get('id')
     process_context.status = process_status
-    if not meeting:
+    if meeting:
         process_context.meeting = meeting
     process_context.save()
 
