@@ -65,5 +65,6 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
                 what_to_do=val['desc'],
                 perform_before=val['due'],
                 responsible=val['responsible'],
-                initiator=initiator
+                initiator=initiator,
+                meeting=meeting
             )
