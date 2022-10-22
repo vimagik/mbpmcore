@@ -1,7 +1,10 @@
+from dataclasses import fields
+from pyexpat import model
 import stat
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from conman.models import CmProcessContext
 from directories.models import Meeting, Arrangement
 from conman.camunda import create_instance
 
@@ -68,3 +71,39 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
                 initiator=initiator,
                 meeting=meeting
             )
+
+
+class GetArrangementSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Arrangement
+        fields = ['description']
+
+
+class CmProcessInstanceSerializer(serializers.ModelSerializer):
+
+    responsible = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='username'
+    )
+    
+    class Meta:
+        model = CmProcessContext
+        fields = ['what_to_do', 'responsible', 'perform_before', 'create_date', 'status']
+
+
+class GetMeetingsSerializer(serializers.ModelSerializer):
+
+    participants = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='username'
+    )
+    tasks = CmProcessInstanceSerializer(many=True)
+    arrangements = GetArrangementSerializer(many=True)
+    
+    class Meta:
+        model = Meeting
+        fields = ['id', 'name', 'due_of_event', 'description', 'participants', 'arrangements', 'tasks']
+

@@ -34,7 +34,8 @@ class CmProcessContext(models.Model):
         Meeting,
         on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        related_name='tasks'
     )
 
     def __str__(self):

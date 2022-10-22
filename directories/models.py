@@ -29,6 +29,7 @@ class Arrangement(models.Model):
     meeting = models.ForeignKey(
         Meeting,
         on_delete=models.CASCADE,
+        related_name='arrangements'
     )
 
     def __str__(self):
