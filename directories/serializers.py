@@ -1,6 +1,3 @@
-from dataclasses import fields
-from pyexpat import model
-import stat
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -87,7 +84,7 @@ class CmProcessInstanceSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
-    
+
     class Meta:
         model = CmProcessContext
         fields = ['what_to_do', 'responsible', 'perform_before', 'create_date', 'status']
