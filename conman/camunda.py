@@ -12,7 +12,7 @@ PROCESS_ID = 'Process_0rlunnd'
 PROCESS_CODE = 'cm'
 
 
-def start_cm(responsible: str, task_name: str, telegram_id: str, perform_before: str = '') -> tuple:
+def start_cm(responsible: str, task_name: str, telegram_id: str, perform_before: str = '') -> tuple[bool, dict]:
     """Start cm process in Camunda"""
     variables = {
         "task_restriction": {"value": perform_before, "type": "Date"},
@@ -25,7 +25,7 @@ def start_cm(responsible: str, task_name: str, telegram_id: str, perform_before:
     return status, response
 
 
-def create_instance(short_name: str, what_to_do: str, perform_before: datetime, responsible: str, initiator: User, meeting: Optional[Meeting] = None) -> tuple:
+def create_instance(short_name: str, what_to_do: str, perform_before: datetime, responsible: str, initiator: User, meeting: Optional[Meeting] = None) -> tuple[bool, dict]:
     process_status = 'Планирование'
     if perform_before:
         perform_before_iso = perform_before.isoformat()[:19] + '.000UTC'
@@ -62,4 +62,4 @@ def create_instance(short_name: str, what_to_do: str, perform_before: datetime, 
         camunda_instance_id=camunda_response.get('id'),
         process=process,
     )
-    return True, 'Instanse created'
+    return True, {'info': 'Instance created'}

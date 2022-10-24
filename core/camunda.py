@@ -6,7 +6,7 @@ BASE_URL = 'http://localhost:8080/engine-rest/'
 MAX_RETRIES = 5
 
 
-def send_post_camunda_request(url: str, data: dict) -> tuple:
+def send_post_camunda_request(url: str, data: dict) -> tuple[bool, dict]:
     """Wrap for post request in Camunda"""
     attempt_num = 0
     while attempt_num < MAX_RETRIES:
@@ -15,14 +15,14 @@ def send_post_camunda_request(url: str, data: dict) -> tuple:
             if r.text:
                 return True, r.json()
             else:
-                return True, ''
+                return True, {'info': ''}
         else:
             attempt_num += 1
             time.sleep(2)
     return False, {'error': 'Camunda not available'}
 
 
-def get_all_user_task(user: User) -> tuple:
+def get_all_user_task(user: User) -> tuple[bool, dict]:
     """Get list tasks of current user"""
     url = BASE_URL + 'task'
     groups = []
@@ -48,7 +48,7 @@ def get_all_user_task(user: User) -> tuple:
     return send_post_camunda_request(url, data)
 
 
-def start_process(process_id: str, variables: dict, business_key: str) -> tuple:
+def start_process(process_id: str, variables: dict, business_key: str) -> tuple[bool, dict]:
     """Start a new process in camunda"""
     url = f'{BASE_URL}process-definition/key/{process_id}/start'
     data = {
@@ -58,7 +58,7 @@ def start_process(process_id: str, variables: dict, business_key: str) -> tuple:
     return send_post_camunda_request(url, data)
 
 
-def complete_task(task_id: str, variables: dict) -> tuple:
+def complete_task(task_id: str, variables: dict) -> tuple[bool, dict]:
     """Start a new process in camunda"""
     url = f'{BASE_URL}task/{task_id}/complete'
     data = {
