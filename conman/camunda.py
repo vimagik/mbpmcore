@@ -26,6 +26,7 @@ def start_cm(responsible: str, task_name: str, telegram_id: str, perform_before:
 
 
 def create_instance(short_name: str, what_to_do: str, perform_before: datetime, responsible: str, initiator: User, meeting: Optional[Meeting] = None) -> tuple[bool, dict]:
+    """Start cm process and create process instance"""
     process_status = 'Планирование'
     if perform_before:
         perform_before_iso = perform_before.isoformat()[:19] + '.000UTC'

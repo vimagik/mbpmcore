@@ -59,7 +59,7 @@ def start_process(process_id: str, variables: dict, business_key: str) -> tuple[
 
 
 def complete_task(task_id: str, variables: dict) -> tuple[bool, dict]:
-    """Start a new process in camunda"""
+    """Complete task in camunda"""
     url = f'{BASE_URL}task/{task_id}/complete'
     data = {
         'variables': variables,
