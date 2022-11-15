@@ -13,6 +13,7 @@ class Meeting(models.Model):
     due_of_event = models.DateField()
     description = models.TextField()
     participants = models.ManyToManyField(User)
+    status = models.CharField(max_length=10)
 
     def __str__(self):
         return self.name

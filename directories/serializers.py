@@ -92,15 +92,8 @@ class CmProcessInstanceSerializer(serializers.ModelSerializer):
 
 class GetMeetingsSerializer(serializers.ModelSerializer):
 
-    participants = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='username'
-    )
-    tasks = CmProcessInstanceSerializer(many=True)
-    arrangements = GetArrangementSerializer(many=True)
-    
     class Meta:
         model = Meeting
-        fields = ['id', 'name', 'due_of_event', 'description', 'participants', 'arrangements', 'tasks']
+        fields = ['id', 'name', 'due_of_event', 'description', 'status']
+
 
