@@ -6,9 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 
 from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, \
     FinishCompleteTaskSerializer, CmProcessInstanceSerializer
-from conman.camunda import start_cm, create_instance
+from conman.camunda import create_instance
 from conman.models import CmProcessContext
-from core.models import ProcessInstanceModel, ProcessModel
 from core.camunda import complete_task
 
 PROCESS_CODE = 'cm'
@@ -113,8 +112,8 @@ class FinishCompleteTaskView(APIView):
 class CmSetPagination(PageNumberPagination):
     """Pagination for CM process instance"""
     page_size = 100
-    page_size_query_param = 'page_size'
     max_page_size = 100
+    page_size_query_param = 'page_size'
 
 
 class CmProcessInstanceView(viewsets.ModelViewSet):
