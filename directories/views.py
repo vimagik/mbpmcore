@@ -13,7 +13,7 @@ class CreateMeetingView(generics.CreateAPIView):
 class MeetingPaginator(PageNumberPagination):
     """Pagination for get meetings"""
     page_size = 100
-    page_query_param = 'page_size'
+    page_size_query_param = 'page_size'
     max_page_size = 100
 
 
@@ -23,5 +23,5 @@ class GetMeetingView(viewsets.ModelViewSet):
     pagination_class = MeetingPaginator
 
     def get_queryset(self):
-        query_set = Meeting.objects.all()
+        query_set = Meeting.objects.all().order_by('due_of_event')
         return query_set
