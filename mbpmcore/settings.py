@@ -31,8 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'directories',
-    'core',
+    'directories.apps.DirectoriesConfig',
+    'core.apps.CoreConfig',
     'conman.apps.ConmanConfig',
     'rest_framework',
     'corsheaders',

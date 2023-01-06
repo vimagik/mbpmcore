@@ -24,4 +24,10 @@ class GetMeetingView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query_set = Meeting.objects.all().order_by('due_of_event')
+        if self.request.query_params.get('sort_by[]'):
+            sort_by = self.request.query_params.get('sort_by[]')
+            sort_desk = self.request.query_params.get('sort_desc[]', default='false')
+            if sort_desk == 'true':
+                sort_by = '-' + sort_by
+            query_set = query_set.order_by(sort_by)
         return query_set
