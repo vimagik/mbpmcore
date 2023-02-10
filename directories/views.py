@@ -31,9 +31,12 @@ class GetMeetingView(viewsets.ModelViewSet):
                 )
         else:
             query_set = Meeting.objects.all().order_by('due_of_event')
-        period = self.request.query_params.get('period[]')
-        if period:
-            pass
+        start_date = self.request.query_params.get('startDate')
+        end_date = self.request.query_params.get('endDate')
+        if start_date:
+            query_set = query_set.filter(
+                Q(due_of_event__gte = start_date) & Q(due_of_event__lte = end_date)
+            )
         if self.request.query_params.get('sort_by[]'):
             sort_by = self.request.query_params.get('sort_by[]')
             sort_desk = self.request.query_params.get('sort_desc[]', default='false')
