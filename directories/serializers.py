@@ -96,4 +96,3 @@ class GetMeetingsSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = ['id', 'name', 'due_of_event', 'description', 'status']
 
-

@@ -1,5 +1,7 @@
-from rest_framework import permissions, generics, viewsets
+from rest_framework import permissions, generics, viewsets, status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 from django.db.models import Q
 
 from directories.serializers import StartFormMeetingSerializer, GetMeetingsSerializer
@@ -8,7 +10,17 @@ from directories.models import Meeting
 
 class CreateMeetingView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = StartFormMeetingSerializer
+    parser_classes = [JSONParser]
+
+    def post(self, request) -> Response:
+        serializer = StartFormMeetingSerializer(
+            data=request.data, 
+            context={'request': request}
+        )
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class MeetingPaginator(PageNumberPagination):
