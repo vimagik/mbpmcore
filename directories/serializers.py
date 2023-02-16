@@ -92,7 +92,9 @@ class CmProcessInstanceSerializer(serializers.ModelSerializer):
 
 class GetMeetingsSerializer(serializers.ModelSerializer):
 
+    arrangements = GetArrangementSerializer(many=True, required=False)
+
     class Meta:
         model = Meeting
-        fields = ['id', 'name', 'due_of_event', 'description', 'status']
+        fields = ['id', 'name', 'due_of_event', 'description', 'status', 'arrangements']
 
