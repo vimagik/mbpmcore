@@ -2,10 +2,13 @@ from rest_framework import permissions, generics, viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.db.models import Q
+from django.http import Http404
 
-from directories.serializers import StartFormMeetingSerializer, GetMeetingsSerializer
+from directories.serializers import StartFormMeetingSerializer, GetMeetingsSerializer, GetCurrentMeetingsSerializer, CmProcessInstanceSerializer
 from directories.models import Meeting
+from conman.models import CmProcessContext
 
 
 class CreateMeetingView(generics.CreateAPIView):
@@ -56,3 +59,18 @@ class GetMeetingView(viewsets.ModelViewSet):
                 sort_by = '-' + sort_by
             query_set = query_set.order_by(sort_by)
         return query_set
+
+
+class GetCurrentMeetView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Meeting.objects.get(pk=pk)
+        except Meeting.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        meet = self.get_object(pk)
+        meet_serializer = GetCurrentMeetingsSerializer(meet)
+        return Response(meet_serializer.data)
