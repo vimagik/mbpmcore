@@ -8,7 +8,6 @@ from django.http import Http404
 
 from directories.serializers import StartFormMeetingSerializer, GetMeetingsSerializer, GetCurrentMeetingsSerializer, CmProcessInstanceSerializer
 from directories.models import Meeting
-from conman.models import CmProcessContext
 
 
 class CreateMeetingView(generics.CreateAPIView):
