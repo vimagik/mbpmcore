@@ -27,7 +27,8 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
         new_meeting = Meeting.objects.create(
             name=validated_data['name'],
             due_of_event=validated_data['due_of_event'],
-            description=validated_data['description']
+            description=validated_data['description'],
+            status='Нет поручений',
         )
         self.add_participants(
             data=validated_data['participants'],
@@ -40,6 +41,8 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
         if len(task_data) > 0:
             user =  self.context['request'].user
             self.add_tasks(task_data, new_meeting, user)
+            new_meeting.status = 'В работе'
+            new_meeting.save()
         return new_meeting
 
     @staticmethod

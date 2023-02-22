@@ -104,6 +104,21 @@ class FinishCompleteTaskView(APIView):
         process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
         if status_task == 'postponement':
             process_instance.perform_before = perform_before
+        else:
+            if process_instance.meeting:
+                all_task = CmProcessContext.objects.filter(
+                    meeting__pk=process_instance.meeting.pk
+                    ).exclude(
+                    pk=process_instance.pk
+                    )
+                completed = True
+                for task in all_task:
+                    if task.status != 'Завершен':
+                        completed = False
+                        break
+                if completed:
+                    process_instance.meeting.status = 'Все поручения выполнены'
+                    process_instance.meeting.save()
         process_instance.status = process_status
         process_instance.save()
         return Response(status=status.HTTP_200_OK)
