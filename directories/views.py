@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from django.db.models import Q
 from django.http import Http404
 
-from directories.serializers import StartFormMeetingSerializer, GetMeetingsSerializer, GetCurrentMeetingsSerializer, CmProcessInstanceSerializer
+from directories.serializers import StartFormMeetingSerializer, GetMeetingsSerializer, GetCurrentMeetingsSerializer
 from directories.models import Meeting
 
 
@@ -57,6 +57,8 @@ class GetMeetingView(viewsets.ModelViewSet):
             if sort_desk == 'true':
                 sort_by = '-' + sort_by
             query_set = query_set.order_by(sort_by)
+        else:
+            query_set = query_set.order_by('-due_of_event')
         return query_set
 
 
