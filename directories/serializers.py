@@ -62,7 +62,7 @@ class StartFormMeetingSerializer(serializers.ModelSerializer):
     @staticmethod
     def add_tasks(data: list, meeting: Meeting, initiator: User) -> None:
         for val in data:
-            short_name = val['desc'] if len(val['desc']) <= 20 else val['desc'][:20] + '...'
+            short_name = val['desc'] if len(val['desc']) <= 50 else val['desc'][:50] + '...'
             create_instance(
                 short_name=short_name,
                 what_to_do=val['desc'],
