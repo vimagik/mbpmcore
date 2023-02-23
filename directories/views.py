@@ -51,6 +51,9 @@ class GetMeetingView(viewsets.ModelViewSet):
             query_set = query_set.filter(
                 Q(due_of_event__gte = start_date) & Q(due_of_event__lte = end_date)
             )
+        if self.request.query_params.get('status'):
+            meet_status = self.request.query_params.get('status')
+            query_set = query_set.filter(status = meet_status)
         if self.request.query_params.get('sort_by[]'):
             sort_by = self.request.query_params.get('sort_by[]')
             sort_desk = self.request.query_params.get('sort_desc[]', default='false')
