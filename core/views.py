@@ -50,13 +50,17 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+def get_due(task: dict) -> str:
+    return task['due'] if task['due'] is not None else '' 
+
+
 class CamundaTaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         result, data = get_all_user_task(self.request.user)
         if result:
-            data = sorted(data, key=itemgetter('due'))
+            data = sorted(data, key=get_due)
             page = int(self.request.query_params.get('page', default=1))-1 
             search_string = self.request.query_params.get('search')
             if search_string:
