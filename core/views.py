@@ -1,3 +1,4 @@
+from operator import attrgetter, itemgetter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -53,10 +54,11 @@ class CamundaTaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        result, data = get_all_user_task(self.request.user)  # type: ignore
+        result, data = get_all_user_task(self.request.user)
         if result:
-            page = int(self.request.query_params.get('page', default=1))-1 # type: ignore
-            search_string = self.request.query_params.get('search') # type: ignore
+            data = sorted(data, key=itemgetter('due'))
+            page = int(self.request.query_params.get('page', default=1))-1 
+            search_string = self.request.query_params.get('search')
             if search_string:
                 data = [item for item in data if item['name'].lower().startswith(search_string.lower())]
             paginated_tasks = data[page*10:(page+1)*10]
