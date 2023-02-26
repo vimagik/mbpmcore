@@ -100,12 +100,20 @@ class GetMeetingsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'due_of_event', 'description', 'status']
 
 
+class GetPartisipant(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['username']
+
+
 class GetCurrentMeetingsSerializer(serializers.ModelSerializer):
 
     arrangements = GetArrangementSerializer(many=True, required=False)
     tasks = CmProcessInstanceSerializer(many=True, required=False)
+    participants = GetPartisipant(many=True, required=False)
 
     class Meta:
         model = Meeting
-        fields = ['id', 'name', 'due_of_event', 'description', 'status', 'arrangements', 'tasks']
+        fields = ['id', 'name', 'due_of_event', 'description', 'status', 'arrangements', 'tasks', 'participants']
 
