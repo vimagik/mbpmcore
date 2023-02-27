@@ -4,8 +4,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import permissions, status, viewsets
 from django.contrib.auth.models import User
 
-from core.serializers import TaskSerializer, ProcesSerializer, UserSerializer
-from core.models import TaskModel, ProcessModel
+from core.serializers import ProcesSerializer, UserSerializer
+from core.models import ProcessModel
 from core.camunda import get_all_user_task
 
 DEFAULT_PROCESS_VALUE = {
@@ -23,12 +23,14 @@ class TasksSetPagination(PageNumberPagination):
 
 
 class ProcessView(viewsets.ModelViewSet):
+    """Get processes registered in the system"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProcesSerializer
     queryset = ProcessModel.objects.all()
 
 
 class UserView(APIView):
+    """Getting user data"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -40,20 +42,23 @@ class UserView(APIView):
 
 
 class LogoutView(APIView):
+    """View for logout"""
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self):
+    def get(self, request):
         try:
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=e)
 
 
 def get_due(task: dict) -> str:
+    """Sort tasks by date of completion, taking into account None values"""
     return task['due'] if task['due'] is not None else '' 
 
 
 class CamundaTaskView(APIView):
+    """Getting all the tasks of this user"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -87,6 +92,7 @@ class CamundaTaskView(APIView):
 
 
 class UserListView(viewsets.ModelViewSet):
+    """Getting the list of users registered in the system"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
     queryset = User.objects.all()
