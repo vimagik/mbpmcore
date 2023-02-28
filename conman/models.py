@@ -40,5 +40,3 @@ class CmProcessContext(models.Model):
 
     def __str__(self):
         return self.short_name
-
-

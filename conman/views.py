@@ -42,6 +42,7 @@ class StartCM(APIView):
 
 
 class GetContextView(APIView):
+    """Getting data on a specific task (process context)"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request) -> Response:
@@ -54,6 +55,7 @@ class GetContextView(APIView):
 
 
 class FinishPlanTaskView(APIView):
+    """Completing the 'Put in Plan' task"""
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [JSONParser]
 
@@ -79,6 +81,7 @@ class FinishPlanTaskView(APIView):
 
 
 class FinishCompleteTaskView(APIView):
+    """Completing the task 'Task completed'"""
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [JSONParser]
 
