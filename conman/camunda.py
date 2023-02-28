@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from django.contrib.auth.models import User
 
-from core.camunda import start_process
+from core.camunda import start_process, complete_task
 from core.models import ProcessModel, ProcessInstanceModel
 from conman.models import CmProcessContext
 
@@ -72,3 +72,64 @@ def create_instance(
         process=process,
     )
     return True, {'info': 'Instance created'}
+
+
+def plan_task_complete(perform_before: datetime, task_id: str, instance_id: str) -> tuple[bool, dict]:
+    """Completing the planning task"""
+    perform_before_str = perform_before.isoformat()[:19] + '.000UTC'
+    variables = {
+            "task_restriction": {"value": perform_before_str, "type": "Date"},
+        }
+    status_code, camunda_response = complete_task(task_id, variables)
+    if not status_code:
+        return status_code, camunda_response
+    process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
+    process_instance.perform_before = perform_before
+    process_instance.status = 'Выполнение'
+    process_instance.save()
+    return True, {'info': 'Task completed'}
+
+
+def finish_task_complete(
+        task_id: str, 
+        instance_id: str, 
+        status_task: str, 
+        perform_before: datetime | None = None
+        ) -> tuple[bool, dict]:
+        """Completing the task of completing an order"""
+        
+        process_status = 'Завершен'
+        if perform_before is not None:
+            perform_before_str = perform_before.isoformat()[:19] + '.000UTC'
+        
+        variables = {
+            "status": {"value": status_task, "type": "String"},
+        }
+        if status_task == 'postponement':
+            variables['task_restriction'] = {"value": perform_before_str, "type": "Date"}
+            process_status = 'Перенос срока'
+        status_code, camunda_response = complete_task(task_id, variables)
+        if not status_code:
+            return status_code, camunda_response
+        process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
+        if status_task == 'postponement':
+            process_instance.perform_before = perform_before
+        else:
+            if process_instance.meeting:
+                all_task = CmProcessContext.objects.filter(
+                    meeting__pk=process_instance.meeting.pk
+                    ).exclude(
+                    pk=process_instance.pk
+                    )
+                completed = True
+                for task in all_task:
+                    if task.status != 'Завершен':
+                        completed = False
+                        break
+                if completed:
+                    process_instance.meeting.status = 'Все поручения выполнены'
+                    process_instance.meeting.save()
+        process_instance.status = process_status
+        process_instance.save()
+        return True, {'info': 'Task completed'}
+

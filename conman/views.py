@@ -6,9 +6,9 @@ from rest_framework.pagination import PageNumberPagination
 
 from conman.serializers import StartFormSerializer, ContextSerializer, FinishPlanTaskSerializer, \
     FinishCompleteTaskSerializer, CmProcessInstanceSerializer
-from conman.camunda import create_instance
+from conman.camunda import create_instance, plan_task_complete, finish_task_complete
 from conman.models import CmProcessContext
-from core.camunda import complete_task
+
 
 PROCESS_CODE = 'cm'
 
@@ -63,20 +63,13 @@ class FinishPlanTaskView(APIView):
         serializer = FinishPlanTaskSerializer(data=request.query_params)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
-        perform_before = serializer.validated_data['perform_before']
-        perform_before_str = perform_before.isoformat()[:19] + '.000UTC'
-        task_id = serializer.validated_data['task_id']
-        instance_id = serializer.validated_data['instance_id']
-        variables = {
-            "task_restriction": {"value": perform_before_str, "type": "Date"},
-        }
-        status_code, camunda_response = complete_task(task_id, variables)
+        status_code, camunda_response = plan_task_complete(
+            perform_before = serializer.validated_data['perform_before'],
+            task_id = serializer.validated_data['task_id'],
+            instance_id = serializer.validated_data['instance_id']
+        )
         if not status_code:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
-        process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
-        process_instance.perform_before = perform_before
-        process_instance.status = 'Выполнение'
-        process_instance.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -86,44 +79,17 @@ class FinishCompleteTaskView(APIView):
     parser_classes = [JSONParser]
 
     def get(self, request) -> Response:
-        process_status = 'Завершен'
         serializer = FinishCompleteTaskSerializer(data=request.query_params)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
-        task_id = serializer.validated_data['task_id']
-        instance_id = serializer.validated_data['instance_id']
-        status_task = serializer.validated_data['status']
-        variables = {
-            "status": {"value": status_task, "type": "String"},
-        }
-        if status_task == 'postponement':
-            perform_before = serializer.validated_data['perform_before']
-            perform_before_str = perform_before.isoformat()[:19] + '.000UTC'
-            variables['task_restriction'] = {"value": perform_before_str, "type": "Date"}
-            process_status = 'Перенос срока'
-        status_code, camunda_response = complete_task(task_id, variables)
+        status_code, camunda_response = finish_task_complete(
+            task_id=serializer.validated_data['task_id'],
+            instance_id=serializer.validated_data['instance_id'],
+            status_task=serializer.validated_data['status'],
+            perform_before=serializer.validated_data.get('perform_before', None) # type: ignore 
+        )
         if not status_code:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=camunda_response)
-        process_instance = CmProcessContext.objects.get(camunda_instance_id__exact=instance_id)
-        if status_task == 'postponement':
-            process_instance.perform_before = perform_before
-        else:
-            if process_instance.meeting:
-                all_task = CmProcessContext.objects.filter(
-                    meeting__pk=process_instance.meeting.pk
-                    ).exclude(
-                    pk=process_instance.pk
-                    )
-                completed = True
-                for task in all_task:
-                    if task.status != 'Завершен':
-                        completed = False
-                        break
-                if completed:
-                    process_instance.meeting.status = 'Все поручения выполнены'
-                    process_instance.meeting.save()
-        process_instance.status = process_status
-        process_instance.save()
         return Response(status=status.HTTP_200_OK)
 
 
