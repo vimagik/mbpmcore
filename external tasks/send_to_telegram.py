@@ -16,6 +16,7 @@ API_TOKEN = '1033382685:AAEmbpKw8wg-Sbrx_xPsovKEQE2M2xEvRaY'
 
 
 def send_to_telegram(task_name: str, message_type: str, due_date: datetime, telegram_id: str) -> None:
+    """Sending a telegram message for the CM process"""
     if message_type == 'planDate':
         text_message = f'По задаче "{task_name}" установлен срок до {due_date.strftime("%d.%m.%Y")} включительно'
     elif message_type == 'postponeDate':
@@ -31,6 +32,7 @@ def send_to_telegram(task_name: str, message_type: str, due_date: datetime, tele
 
 
 def send_info(task: ExternalTask) -> TaskResult:
+    """External task Camunda shell"""
     task_name = task.get_variable('task_name')
     message_type = task.get_extension_property('type')
     due_date_str = task.get_variable('task_restriction')

@@ -11,6 +11,7 @@ from directories.models import Meeting
 
 
 class CreateMeetingView(generics.CreateAPIView):
+    """Saving meeting data"""
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [JSONParser]
 
@@ -33,6 +34,7 @@ class MeetingPaginator(PageNumberPagination):
 
 
 class GetMeetingView(viewsets.ModelViewSet):
+    """Output of all meetings with filtering"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = GetMeetingsSerializer
     pagination_class = MeetingPaginator
@@ -66,6 +68,7 @@ class GetMeetingView(viewsets.ModelViewSet):
 
 
 class GetCurrentMeetView(APIView):
+    """Obtaining data about a specific meeting"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, pk):
