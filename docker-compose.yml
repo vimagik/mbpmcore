@@ -1,20 +1,24 @@
 version: '2.15.1'
+
 services:
   db:
     image: postgres:15.2-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_USER: camunda
-      POSTGRES_PASSWORD: camunda
-    restart: always
-  camunda:
-    image: camunda/camunda-bpm-platform:7.19.0
-    environment:
-      DB_DRIVER: org.postgresql.Driver
-      DB_URL: jdbc:postgresql://db:5432/camunda
-      DB_USERNAME: camunda
-      DB_PASSWORD: camunda
+      - POSTGRES_USER=camunda
+      - POSTGRES_PASSWORD=camunda
+      - POSTGRES_DB=django_db
+  
+  cms:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
-     - 8080:8080
+      - 8000:8000
+    env_file:
+      - ./.env.dev
     depends_on:
      - db
-    restart: always
+
+volumes:
+  postgres_data:

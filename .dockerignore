@@ -1,0 +1,10 @@
+.venv
+.vscode
+conman/__pycache__
+conman/migrations
+core/__pycache__
+core/migrations
+directories/__pycache__
+directories/migrations
+mbpmcore/__pycache__
+.env.dev
