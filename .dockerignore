@@ -1,9 +1,10 @@
 .git
 .venv
 .vscode
-__pycache__
-*/migrations
-!__init__.py
+*/migrations/*.py
+!*/migrations/__init__.py
+*/migrations/__pycache__
+*/__pycache__
 .env.dev
 pyproject.toml
 docker*
