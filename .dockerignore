@@ -1,10 +1,9 @@
+.git
 .venv
 .vscode
-conman/__pycache__
-conman/migrations
-core/__pycache__
-core/migrations
-directories/__pycache__
-directories/migrations
-mbpmcore/__pycache__
+__pycache__
+*/migrations
+!__init__.py
 .env.dev
+pyproject.toml
+docker*
