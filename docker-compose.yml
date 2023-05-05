@@ -20,5 +20,17 @@ services:
     depends_on:
      - db
 
+  camunda:
+    image: camunda/camunda-bpm-platform:7.19.0
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://db:5432/camunda
+      DB_USERNAME: camunda
+      DB_PASSWORD: camunda
+    ports:
+     - 8080:8080
+    depends_on:
+     - db
+
 volumes:
   postgres_data:

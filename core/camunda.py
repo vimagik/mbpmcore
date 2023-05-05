@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
 import requests
 import time
+import os
 
-BASE_URL = 'http://localhost:8080/engine-rest/'
+CAMUNDA_HOST = os.environ.get("CAMUNDA_HOST", "localhost")
+BASE_URL = f"http://{CAMUNDA_HOST}:8080/engine-rest/"
 MAX_RETRIES = 5
 
 
@@ -15,54 +17,55 @@ def send_post_camunda_request(url: str, data: dict) -> tuple[bool, dict]:
             if r.text:
                 return True, r.json()
             else:
-                return True, {'info': ''}
+                return True, {"info": ""}
         else:
             attempt_num += 1
             time.sleep(2)
-    return False, {'error': 'Camunda not available'}
+    return False, {"error": "Camunda not available"}
 
 
 def get_all_user_task(user: User) -> tuple[bool, dict]:
     """Get list tasks of current user"""
-    url = BASE_URL + 'task'
+    url = BASE_URL + "task"
     groups = []
     for value in user.groups.all():
         groups.append(value.name)
     if len(groups) == 0:
         data = {
-        'orQueries': [
-            {
-                'assignee': user.username,
-            }
-        ]
-    }
+            "orQueries": [
+                {
+                    "assignee": user.username,
+                }
+            ]
+        }
     else:
         data = {
-            'orQueries': [
+            "orQueries": [
                 {
-                    'candidateGroups': groups,
-                    'assignee': user.username,
+                    "candidateGroups": groups,
+                    "assignee": user.username,
                 }
             ]
         }
     return send_post_camunda_request(url, data)
 
 
-def start_process(process_id: str, variables: dict, business_key: str) -> tuple[bool, dict]:
+def start_process(
+    process_id: str, variables: dict, business_key: str
+) -> tuple[bool, dict]:
     """Start a new process in camunda"""
-    url = f'{BASE_URL}process-definition/key/{process_id}/start'
+    url = f"{BASE_URL}process-definition/key/{process_id}/start"
     data = {
-        'businessKey': business_key,
-        'variables': variables,
+        "businessKey": business_key,
+        "variables": variables,
     }
     return send_post_camunda_request(url, data)
 
 
 def complete_task(task_id: str, variables: dict) -> tuple[bool, dict]:
     """Complete task in camunda"""
-    url = f'{BASE_URL}task/{task_id}/complete'
+    url = f"{BASE_URL}task/{task_id}/complete"
     data = {
-        'variables': variables,
+        "variables": variables,
     }
     return send_post_camunda_request(url, data)
-
