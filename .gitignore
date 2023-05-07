@@ -6,4 +6,5 @@ core/migrations
 directories/__pycache__
 directories/migrations
 mbpmcore/__pycache__
-.env.dev
+.env.*
+.docker_compose_prod

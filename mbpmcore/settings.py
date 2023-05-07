@@ -146,14 +146,23 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:3000",
-    "http://localhost",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get("DJANGO_CORS_ALLOWED", "http://localhost").split(
+    " "
+)
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
 }
+
+ADMINS = (("admin", "vimagik@gmail.com"),)
+EMAIL_SUBJECT_PREFIX = os.environ.get("EMAIL_SUBJECT_PREFIX")
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.environ.get("EMAIL_PORT", 465)
+EMAIL_USE_TLS = int(os.environ.get("EMAIL_USE_TLS", 0))
+EMAIL_USE_SSL = int(os.environ.get("EMAIL_USE_SSL", 1))
+SERVER_EMAIL = os.environ.get("SERVER_EMAIL")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
