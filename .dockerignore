@@ -9,3 +9,4 @@
 pyproject.toml
 docker*
 .docker_compose_prod
+camunda
