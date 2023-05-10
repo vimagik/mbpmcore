@@ -1,0 +1,44 @@
+version: '2.15.1'
+
+services:
+  db:
+    image: postgres:15.2-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=camunda
+      - POSTGRES_PASSWORD=camunda
+      - POSTGRES_DB=django_db
+  
+  cms:
+    build: .
+    command: gunicorn mbpmcore.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+     - db
+
+  camunda:
+    build: ./camunda
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://db:5432/camunda
+      DB_USERNAME: camunda
+      DB_PASSWORD: camunda
+    ports:
+     - 8080:8080
+    depends_on:
+     - db
+  
+  telegram:
+    build: ./external tasks/telegram
+    command: python send_to_telegram.py
+    environment:
+      - CAMUNDA_HOST=camunda
+    depends_on:
+      - camunda
+
+volumes:
+  postgres_data:

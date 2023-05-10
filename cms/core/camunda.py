@@ -6,13 +6,15 @@ import os
 CAMUNDA_HOST = os.environ.get("CAMUNDA_HOST", "localhost")
 BASE_URL = f"http://{CAMUNDA_HOST}:8080/engine-rest/"
 MAX_RETRIES = 5
+CAMUNDA_USER = os.environ.get("CAMUNDA_USER", "demo")
+CAMUNDA_API_PASSWORD = os.environ.get("CAMUNDA_API_PASSWORD", "demo")
 
 
 def send_post_camunda_request(url: str, data: dict) -> tuple[bool, dict]:
     """Wrap for post request in Camunda"""
     attempt_num = 0
     while attempt_num < MAX_RETRIES:
-        r = requests.post(url, json=data)
+        r = requests.post(url, json=data, auth=(CAMUNDA_USER, CAMUNDA_API_PASSWORD))
         if r.status_code in [200, 204]:
             if r.text:
                 return True, r.json()

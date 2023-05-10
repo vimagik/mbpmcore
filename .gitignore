@@ -1,10 +1,10 @@
 .venv
-conman/__pycache__
-conman/migrations
-core/__pycache__
-core/migrations
-directories/__pycache__
-directories/migrations
-mbpmcore/__pycache__
+cms/conman/__pycache__
+cms/conman/migrations
+cms/core/__pycache__
+cms/core/migrations
+cms/directories/__pycache__
+cms/directories/migrations
+cms/mbpmcore/__pycache__
 .env.*
 .docker_compose_prod

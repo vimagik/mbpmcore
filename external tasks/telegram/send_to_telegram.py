@@ -5,7 +5,14 @@ from camunda.external_task.external_task import ExternalTask, TaskResult
 from camunda.external_task.external_task_worker import ExternalTaskWorker
 
 
+API_TOKEN = "1033382685:AAEmbpKw8wg-Sbrx_xPsovKEQE2M2xEvRaY"
+CAMUNDA_HOST = os.environ.get("CAMUNDA_HOST", "localhost")
+BASE_CAMUNDA_URL = f"http://{CAMUNDA_HOST}:8080/engine-rest"
+CAMUNDA_USER=os.environ.get("CAMUNDA_USER", "demo")
+CAMUNDA_API_PASSWORD=os.environ.get("CAMUNDA_API_PASSWORD", "demo")
+
 default_config = {
+    "auth_basic": {"username": CAMUNDA_USER, "password": CAMUNDA_API_PASSWORD},
     "maxTask": 1,
     "lockDuration": 10000,
     "asyncResponseTimeout": 5000,
@@ -13,10 +20,6 @@ default_config = {
     "retryTimeout": 5000,
     "sleepSeconds": 30,
 }
-
-API_TOKEN = "1033382685:AAEmbpKw8wg-Sbrx_xPsovKEQE2M2xEvRaY"
-CAMUNDA_HOST = os.environ.get("CAMUNDA_HOST", "localhost")
-BASE_CAMUNDA_URL = f"http://{CAMUNDA_HOST}:8080/engine-rest"
 
 
 def send_to_telegram(
