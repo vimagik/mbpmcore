@@ -28,6 +28,7 @@ SECRET_KEY = os.environ.get(
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1").split(" ")
+CSRF_TRUSTED_ORIGINS = ['http://*.127.0.0.1','https://*.127.0.0.1']
 # CSRF_TRUSTED_ORIGINS = "указываем адресс бека"
 
 
