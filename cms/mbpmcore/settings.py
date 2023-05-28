@@ -140,7 +140,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = os.environ.get(
-    "DJANGO_CORS_ALLOWED", "http://localhost:3000 http://localhost:8000"
+    "DJANGO_CORS_ALLOWED", "http://localhost:3000 http://localhost:8000 http://localhost"
 ).split(" ")
 
 REST_FRAMEWORK = {
