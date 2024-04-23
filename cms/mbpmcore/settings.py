@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -20,15 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY", "django-insecure-@(aht)+-awfx8dc!$@hfq89xe0fvx@u4m2e)in_$0%c%pr3=@o"
-)
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-@(aht)+-awfx8dc!$@hfq89xe0fvx@u4m2e)in_$0%c%pr3=@o")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1").split(" ")
-CSRF_TRUSTED_ORIGINS = ['http://*.127.0.0.1','https://*.127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ["http://*.127.0.0.1", "https://*.127.0.0.1", "https://*.rzhavin.pro"]
 # CSRF_TRUSTED_ORIGINS = "указываем адресс бека"
 
 
@@ -144,11 +143,7 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     "DJANGO_CORS_ALLOWED", "http://localhost:3000 http://localhost:8000 http://localhost"
 ).split(" ")
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
-}
+REST_FRAMEWORK = {"DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",)}
 
 ADMINS = (("admin", "vimagik@gmail.com"),)
 EMAIL_SUBJECT_PREFIX = os.environ.get("EMAIL_SUBJECT_PREFIX")

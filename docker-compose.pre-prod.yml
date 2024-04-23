@@ -11,7 +11,8 @@ services:
       - POSTGRES_DB=django_db
   
   cms:
-    build: .
+    build: ./cms
+    image: docker.rzhavin.pro/mbpm-cms:1.0.1
     command: gunicorn mbpmcore.wsgi:application --bind 0.0.0.0:8000
     ports:
       - 8000:8000
@@ -22,6 +23,7 @@ services:
 
   camunda:
     build: ./camunda
+    image: docker.rzhavin.pro/mbpm-camunda:1.0
     environment:
       DB_DRIVER: org.postgresql.Driver
       DB_URL: jdbc:postgresql://db:5432/camunda
@@ -34,6 +36,7 @@ services:
   
   telegram:
     build: ./external tasks/telegram
+    image: docker.rzhavin.pro/mbpm-telegram:1.0
     command: python send_to_telegram.py
     environment:
       - CAMUNDA_HOST=camunda
